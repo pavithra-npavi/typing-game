@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Game</title>
+   <style>
+    * {
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  background-color: #f3bb96;
+}
+
+body, .quote-input {
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.container {
+  background-color: rgb(191, 147, 233);
+  padding: 1rem;
+  border-radius: 15px;
+  width: 700px;
+  max-width: 90%;
+}
+
+.timer {
+  position: absolute;
+  top: 25px;
+  font-size: 50px;
+  color: #4f52f0;
+  font-weight: bold;
+}
+
+.quote-display {
+  margin-bottom: 1rem;
+  margin-left: 10px;
+}
+
+.quote-input {
+  background-color: transparent;
+  border: 2px solid #A1922E;
+  outline: none;
+  width: 100%;
+  height: 150px;
+  margin: auto;
+  resize: none;
+  padding: 5px 10px;
+  font-size: 16px;
+  border-radius: 15px;
+}
+
+.quote-input:focus {
+  border-color: rgb(11, 109, 221);
+}
+
+.correct {
+  color: green;
+}
+
+.incorrect {
+  color: red;
+  text-decoration: underline;
+}
+  </style>
+    
+</head>
+<body>
+    <div class="timer" id="timer">
+        0
+    </div>
+
+    <div class="container">
+        <div class="quote-display" id="dispalyText">
+            Display Text
+        </div>
+
+        <textarea  id="displayInput" class="quote-input" autofocus>Display Text</textarea>
+    </div>
+
+    <script>
+      const RANDOM_QUOTE_API_URL = 'http://api.quotable.io/random'
+const quoteDisplayElement = document.getElementById('dispalyText')
+const quoteInputElement = document.getElementById('displayInput')
+const timerElement = document.getElementById('timer')
+
+quoteInputElement.addEventListener('input', () => {
+  const arrayQuote = quoteDisplayElement.querySelectorAll('span')
+  const arrayValue = quoteInputElement.value.split('')
+
+  let correct = true
+  arrayQuote.forEach((characterSpan, index) => {
+    const character = arrayValue[index]
+    if (character == null) {
+      characterSpan.classList.remove('correct')
+      characterSpan.classList.remove('incorrect')
+      correct = false
+    } else if (character === characterSpan.innerText) {
+      characterSpan.classList.add('correct')
+      characterSpan.classList.remove('incorrect')
+    } else {
+      characterSpan.classList.remove('correct')
+      characterSpan.classList.add('incorrect')
+      correct = false
+    }
+  })
+
+  if (correct) getNextText()
+})
+
+function getRandomText() {
+  return fetch(RANDOM_QUOTE_API_URL)
+    .then(response => response.json())
+    .then(data => data.content)
+}
+
+async function getNextText() {
+  const quote = await getRandomText()
+  quoteDisplayElement.innerHTML = ''
+  quote.split('').forEach(character => {
+    const characterSpan = document.createElement('span')
+    characterSpan.innerText = character
+    quoteDisplayElement.appendChild(characterSpan)
+  })
+  quoteInputElement.value = null
+  startTimer()
+}
+
+let startTime
+function startTimer() {
+  timerElement.innerText = 0
+  startTime = new Date()
+  setInterval(() => {
+    timer.innerText = getTimerTime()
+  }, 1000)
+}
+
+function getTimerTime() {
+  return Math.floor((new Date() - startTime) / 1000)
+}
+
+getNextText()
+    </script>
+</body>
+</html>
